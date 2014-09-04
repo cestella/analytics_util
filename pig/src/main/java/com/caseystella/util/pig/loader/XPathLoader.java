@@ -1,32 +1,44 @@
-package com.caseystella.util.pig.loader.fixed;
+package com.caseystella.util.pig.loader;
 
-import com.caseystella.util.common.input.fixed.FixedWidthInputFormat;
+import com.caseystella.util.common.interpret.xpath.Config;
+import com.caseystella.util.common.interpret.xpath.Field;
 import com.caseystella.util.pig.Helper;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.pig.*;
 import org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigSplit;
+import org.apache.pig.data.DataByteArray;
+import org.apache.pig.data.DataType;
 import org.apache.pig.data.Tuple;
 import org.apache.pig.data.TupleFactory;
 import org.apache.pig.impl.logicalLayer.FrontendException;
 import org.apache.pig.impl.logicalLayer.schema.Schema;
+import org.jdom2.Document;
+import org.jdom2.JDOMException;
+import org.jdom2.input.SAXBuilder;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.nio.ByteBuffer;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 /**
- * Created by cstella on 9/3/14.
+ * Created by cstella on 9/4/14.
  */
-public class Loader extends LoadFunc implements LoadMetadata, LoadPushDown {
+public class XPathLoader extends LoadFunc implements LoadMetadata, LoadPushDown {
     Config config;
     String configFile = null;
-    RecordReader<LongWritable, BytesWritable> reader;
-    public Loader(String configFile)
+    RecordReader<LongWritable, Text> reader;
+    private SAXBuilder builder = new SAXBuilder();
+    public XPathLoader(String configFile)
     {
        this.configFile = configFile;
     }
@@ -38,12 +50,12 @@ public class Loader extends LoadFunc implements LoadMetadata, LoadPushDown {
     @Override
     public InputFormat getInputFormat() throws IOException {
 
-        return new FixedWidthInputFormat(getConfig().computeWidth());
+        return new TextInputFormat();
     }
     private Config getConfig() throws IOException {
         if(config == null)
         {
-            config = Config.load(Helper.open(configFile, Loader.class));
+            config = Config.load(Helper.open(configFile, XPathLoader.class));
         }
         return config;
     }
@@ -61,14 +73,19 @@ public class Loader extends LoadFunc implements LoadMetadata, LoadPushDown {
             if (!notDone) {
                 return null;
             }
-            LongWritable key = reader.getCurrentKey();
-            byte[] value = reader.getCurrentValue().copyBytes();
             t = TupleFactory.getInstance().newTuple();
-            for(Field f : getConfig().getFields())
-            {
-                ByteBuffer b = ByteBuffer.wrap(value, f.getOffset(), f.getWidth());
-                t.append(f.getConverter().convert(b, f.getType(), f.getConfig()));
+            String value = reader.getCurrentValue().toString();
+            Document doc = null;
+            try {
+                doc = builder.build(new StringReader(value));
+                for(Map.Entry<String, String> entry : getConfig().getContent(doc).entrySet())
+                {
+                    t.append(entry.getValue());
+                }
+            } catch (JDOMException e) {
+                throw new RuntimeException("Unable to parse XML: " + value);
             }
+
         }
         catch (InterruptedException e) {
             throw new IOException("Unable to read next value", e);
@@ -78,14 +95,13 @@ public class Loader extends LoadFunc implements LoadMetadata, LoadPushDown {
 
     @Override
     public ResourceSchema getSchema(String s, Job job) throws IOException {
-        Helper.addFileToContext(configFile, Loader.class);
-        getConfig().validate();
+        Helper.addFileToContext(configFile, XPathLoader.class);
         ResourceSchema ret = new ResourceSchema();
         ResourceSchema.ResourceFieldSchema[] fields = new ResourceSchema.ResourceFieldSchema[getConfig().getFields().length];
         int i = 0;
         for(Field f : getConfig().getFields())
         {
-            fields[i] = new ResourceSchema.ResourceFieldSchema(new Schema.FieldSchema(f.getName(), f.getType().getPigType()));
+            fields[i] = new ResourceSchema.ResourceFieldSchema(new Schema.FieldSchema(f.getName(), DataType.CHARARRAY));
             i++;
         }
         ret.setFields(fields);

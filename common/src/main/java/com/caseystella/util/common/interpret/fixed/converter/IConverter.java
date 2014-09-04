@@ -1,7 +1,7 @@
-package com.caseystella.util.pig.loader.fixed.converter;
+package com.caseystella.util.common.interpret.fixed.converter;
 
-import com.caseystella.util.pig.loader.fixed.Field;
-import org.apache.pig.impl.logicalLayer.schema.Schema;
+
+import com.caseystella.util.common.interpret.fixed.Field;
 
 import java.nio.ByteBuffer;
 import java.util.Map;

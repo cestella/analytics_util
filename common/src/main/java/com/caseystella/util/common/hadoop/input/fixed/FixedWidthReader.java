@@ -1,7 +1,6 @@
-package com.caseystella.util.common.input.fixed;
+package com.caseystella.util.common.hadoop.input.fixed;
 
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.BytesWritable;
 
 import java.io.Closeable;

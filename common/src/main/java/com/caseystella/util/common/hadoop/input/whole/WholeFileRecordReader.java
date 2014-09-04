@@ -1,8 +1,7 @@
-package com.caseystella.util.common.input.whole;
+package com.caseystella.util.common.hadoop.input.whole;
 
 import java.io.IOException;
 
-import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.BytesWritable;
 
 import org.apache.hadoop.io.Text;

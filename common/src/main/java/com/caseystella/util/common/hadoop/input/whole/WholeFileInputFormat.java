@@ -1,15 +1,10 @@
-package com.caseystella.util.common.input.whole;
+package com.caseystella.util.common.hadoop.input.whole;
 
 import java.io.IOException;
 
 
-import com.caseystella.util.common.input.whole.WholeFileRecordReader;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.BytesWritable;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;

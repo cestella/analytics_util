@@ -1,4 +1,4 @@
-package com.caseystella.util.common.input.fixed;
+package com.caseystella.util.common.hadoop.input.fixed;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

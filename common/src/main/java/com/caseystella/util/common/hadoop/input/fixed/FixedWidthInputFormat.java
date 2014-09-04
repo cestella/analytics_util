@@ -1,4 +1,4 @@
-package com.caseystella.util.common.input.fixed;
+package com.caseystella.util.common.hadoop.input.fixed;
 
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.BytesWritable;

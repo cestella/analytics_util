@@ -1,8 +1,7 @@
-package com.caseystella.util.pig.loader.fixed.converter;
+package com.caseystella.util.common.interpret.fixed.converter;
 
-import com.caseystella.util.pig.loader.fixed.Field;
-import org.apache.pig.data.DataByteArray;
-import org.apache.pig.impl.logicalLayer.schema.Schema;
+
+import com.caseystella.util.common.interpret.fixed.Field;
 
 import java.nio.ByteBuffer;
 import java.util.Map;
@@ -25,7 +24,7 @@ public class BinaryConverter implements IConverter{
             case STRING:
                 return bytes.asCharBuffer().toString();
             case BYTES:
-                return new DataByteArray(bytes.array(), bytes.position(), bytes.limit());
+                return bytes.compact();
             default:
                 throw new UnsupportedOperationException("Type " + type + " unsupported for " + getClass());
         }

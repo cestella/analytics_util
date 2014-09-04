@@ -1,8 +1,6 @@
-package com.caseystella.util.pig.loader.fixed;
+package com.caseystella.util.common.interpret.fixed;
 
-import com.caseystella.util.pig.loader.fixed.converter.Converter;
-import org.apache.pig.data.DataType;
-import org.apache.pig.impl.logicalLayer.schema.Schema;
+import com.caseystella.util.common.interpret.fixed.converter.Converter;
 
 import java.util.Map;
 
@@ -13,22 +11,13 @@ public class Field
 {
     public static enum Type
     {
-        BYTES(DataType.BYTEARRAY)
-       ,STRING(DataType.CHARARRAY)
-       ,INT(DataType.INTEGER)
-       ,FLOAT(DataType.FLOAT)
-       ,DOUBLE(DataType.DOUBLE)
+        BYTES
+       ,STRING
+       ,INT
+       ,FLOAT
+       ,DOUBLE
         ;
 
-        byte b;
-        Type(byte b)
-        {
-           this.b = b;
-        }
-        public Byte getPigType()
-        {
-            return b;
-        }
     }
     int width;
     int offset;
