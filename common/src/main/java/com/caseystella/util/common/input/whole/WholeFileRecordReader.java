@@ -1,4 +1,4 @@
-package com.caseystella.util.common;
+package com.caseystella.util.common.input.whole;
 
 import java.io.IOException;
 

@@ -1,8 +1,9 @@
-package com.caseystella.util.common;
+package com.caseystella.util.common.input.whole;
 
 import java.io.IOException;
 
 
+import com.caseystella.util.common.input.whole.WholeFileRecordReader;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.fs.FileSystem;

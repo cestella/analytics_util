@@ -1,4 +1,4 @@
-package com.caseystella.util.pig;
+package com.caseystella.util.pig.udf;
 
 import org.apache.pig.EvalFunc;
 import org.apache.pig.data.*;
@@ -20,10 +20,10 @@ import java.io.StringWriter;
 /**
  * Created by cstella on 9/3/14.
  */
-public class TikaExtractor extends EvalFunc<Tuple> {
+public class ContentExtractor extends EvalFunc<Tuple> {
     TupleFactory tupleFactory;
     BagFactory bagFactory;
-    public TikaExtractor()
+    public ContentExtractor()
     {
         tupleFactory = TupleFactory.getInstance();
         bagFactory = DefaultBagFactory.getInstance();
