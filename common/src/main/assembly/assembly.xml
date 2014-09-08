@@ -6,6 +6,15 @@
   <includeBaseDirectory>false</includeBaseDirectory>
   <fileSets>
     <fileSet>
+      <directory>${project.basedir}/src/main/bash</directory>
+      <includes>
+        <include>*.*</include>
+      </includes>
+      <outputDirectory>/</outputDirectory>
+      <useDefaultExcludes>true</useDefaultExcludes>
+    </fileSet>
+
+    <fileSet>
       <directory>${project.basedir}/target</directory>
       <includes>
         <include>common-1.0-SNAPSHOT-shaded.jar</include>
