@@ -86,8 +86,7 @@ public class DirDiff {
             }
         }
     }
-    public static void main(String... argv)
-    {
+    public static void main(String... argv) throws IOException {
         File configFile;
         Config config;
         CommandLine line = Opts.parse(argv);
@@ -112,8 +111,15 @@ public class DirDiff {
                 return;
             }
         }
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        Map<String, Map.Entry<Config.Mapping, Set<String>>  > sourcePathToHDFS = new LinkedHashMap<String, Map.Entry<Config.Mapping,Set<String>>>();
         for(Config.Mapping mapping : config.getMappings())
         {
+            File sourceDir = new File(mapping.getSource());
+            if(!sourceDir.isDirectory())
+            {
+                continue;
+            }
             Set<String> hdfsFiles = null;
             try {
                 hdfsFiles = lsHDFS(mapping.getDestination());
@@ -125,19 +131,31 @@ public class DirDiff {
             catch (IOException e) {
                 continue;
             }
-            File f = new File(mapping.getSource());
-            if(!f.exists())
+            sourcePathToHDFS.put(sourceDir.getCanonicalPath(), new AbstractMap.SimpleEntry<Config.Mapping, Set<String>>(mapping,hdfsFiles));
+        }
+        for(String fileS = null; (fileS = reader.readLine()) != null;)
+        {
+            File inFile = new File(fileS);
+            if(!inFile.exists())
             {
-                continue;
+               continue;
             }
-            Iterable<File> files = Arrays.asList(f.listFiles());
-            Predicate<File> pred = Predicates.and(config, Predicates.and(mapping, new PrintFile(hdfsFiles)));
-            for(File outF : Iterables.filter(files, pred))
+            String canonicalPath = inFile.getCanonicalPath();
+            for(Map.Entry<String, Map.Entry<Config.Mapping, Set<String>>> e : sourcePathToHDFS.entrySet())
             {
-                try {
-                    System.out.println("\"" + outF.getCanonicalPath() + "\" \"" + mapping.getDestination() + "\"");
-                } catch (IOException e) {
-                    throw new RuntimeException("Cannot canonicalize " + outF, e);
+                if(canonicalPath.startsWith(e.getKey()))
+                {
+
+                    Predicate<File> pred = Predicates.and(config, Predicates.and(e.getValue().getKey(), new PrintFile(e.getValue().getValue())));
+                    if(pred.apply(inFile))
+                    {
+                        try {
+                            System.out.println("\"" + inFile.getCanonicalPath() + "\" \"" + e.getValue().getKey().getDestination() + "\"");
+                        } catch (IOException ioe) {
+                            throw new RuntimeException("Cannot canonicalize " + inFile, ioe);
+                        }
+                    }
+                    break;
                 }
             }
         }
