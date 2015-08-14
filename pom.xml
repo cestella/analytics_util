@@ -16,6 +16,14 @@
   </properties>
   <repositories>
     <repository>
+      <id>multiline-release-repo</id>
+      <url>https://raw.github.com/benelog/multiline/master/maven-repository</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+
+    <repository>
       <releases>
         <enabled>true</enabled>
         <updatePolicy>always</updatePolicy>
@@ -39,6 +47,13 @@
     <module>standalone</module>
   </modules>
   <dependencies>
+    <dependency>
+      <groupId>org.adrianwalker</groupId>
+      <artifactId>multiline-string</artifactId>
+      <version>0.1.1</version>
+      <scope>test</scope>
+    </dependency>
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
