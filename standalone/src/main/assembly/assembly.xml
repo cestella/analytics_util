@@ -10,7 +10,16 @@
       <outputDirectory>/pig</outputDirectory>
       <useDefaultExcludes>true</useDefaultExcludes>
     </fileSet>
-
+    <fileSet>
+      <directory>${project.basedir}/src/main/html</directory>
+      <outputDirectory>/html</outputDirectory>
+      <useDefaultExcludes>true</useDefaultExcludes>
+    </fileSet>
+    <fileSet>
+      <directory>${project.basedir}/src/main/bash</directory>
+      <outputDirectory>/</outputDirectory>
+      <useDefaultExcludes>true</useDefaultExcludes>
+    </fileSet>
     <fileSet>
       <directory>${project.basedir}/target</directory>
       <includes>
