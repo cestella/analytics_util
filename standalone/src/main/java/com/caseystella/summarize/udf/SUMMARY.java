@@ -36,7 +36,7 @@ public class SUMMARY extends EvalFunc<String> {
     };
 
     public static Map<String, Double> tupleToQuantile(Tuple t, String... quantiles) throws ExecException {
-        Map<String, Double> ret = Maps.newHashMap();
+        Map<String, Double> ret = Maps.newLinkedHashMap();
         for(int i = 0;i < quantiles.length;++i)
         {
             ret.put(quantiles[i], ((Number) t.get(i)).doubleValue());
@@ -74,7 +74,7 @@ public class SUMMARY extends EvalFunc<String> {
             else if(columnName.equalsIgnoreCase("formats"))
             {
                 Iterable<String> str = Iterables.transform((DataBag) t, TO_STRING);
-                summary.setSample(Lists.newArrayList(str));
+                summary.setCanonicalizedRepresentations(Lists.newArrayList(str));
             }
             else if(columnName.equalsIgnoreCase("quantiles"))
             {

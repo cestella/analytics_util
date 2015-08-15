@@ -4,8 +4,7 @@ import com.google.common.collect.Maps;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by cstella on 8/14/15.
@@ -59,27 +58,25 @@ public class TotalSummary {
 
     public void updateSummaries(List<Summary> summaries)
     {
-        Map<String, String> typeDistribution = Maps.newHashMap();
-        Map<String, Double> distribution = Maps.newHashMap();
-        String dominantType = null;
-        long dominantTypeCnt = 0;
+        Map<String, String> typeDistribution = Maps.newLinkedHashMap();
+        Collections.sort(summaries, new Comparator<Summary>() {
+            @Override
+            public int compare(Summary o1, Summary o2) {
+                return -1*Long.compare(o1.getNumValues(), o2.getNumValues());
+            }
+        }
+        );
         long total = 0;
         for(Summary s : summaries)
         {
-            if(s.getNumValues() > dominantTypeCnt)
-            {
-                dominantType = s.getType();
-                dominantTypeCnt = s.getNumValues();
-            }
             total += s.getNumValues();
-            distribution.put(s.getType(), 1.0*s.getNumValues());
         }
         for(Summary s : summaries)
         {
-            double pct = 100.0*distribution.get(s.getType())/total;
+            double pct = 100.0*s.getNumValues()/total;
             typeDistribution.put(s.getType(), String.format("%.2f", pct) + "%");
         }
-        setPredictedType(dominantType);
+        setPredictedType(summaries.get(0).getType());
         setTypeSummaries(summaries);
         setTypeDistribution(typeDistribution);
 

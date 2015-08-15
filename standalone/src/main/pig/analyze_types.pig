@@ -1,3 +1,4 @@
+set pig.splitCombination false;
 %default analysis_home '.';
 %default num_samples '10';
 %default datafu_jar '/usr/hdp/current/pig-client/lib/datafu.jar'

@@ -53,7 +53,8 @@ public class DateType implements ITypeHandler {
 
     @Override
     public String canonicalize(String base) {
-        return base.replaceAll("\\d", "d");
+        String ret = base.replaceAll("\\d", "d");
+        return ret;
     }
 
     @Override
