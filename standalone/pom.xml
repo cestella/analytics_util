@@ -47,16 +47,37 @@
       <version>0.99</version>
     </dependency>
     <dependency>
+      <groupId>nz.ac.waikato.cms.weka</groupId>
+      <artifactId>weka-dev</artifactId>
+      <version>3.7.12</version>
+    </dependency>
+    <dependency>
       <groupId>org.antlr</groupId>
       <artifactId>antlr4</artifactId>
       <version>4.3</version>
     </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>18.0</version>
+    </dependency>
 
+    <dependency>
+      <groupId>com.caseystella.util</groupId>
+      <artifactId>pig</artifactId>
+      <version>${parent.version}</version>
+    </dependency>
+    
     <dependency>
       <groupId>org.adrianwalker</groupId>
       <artifactId>multiline-string</artifactId>
       <version>0.1.1</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.haifengl</groupId>
+      <artifactId>smile-core</artifactId>
+      <version>1.0.3</version>
     </dependency>
   </dependencies>
   <build>

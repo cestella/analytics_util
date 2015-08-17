@@ -108,7 +108,7 @@ table {
     {
       content += "<h3>Data Sample</h3>"
       content += "<div><p><ul>"
-      for(var i = 0;i < columnSummary.sample.length;++i)
+      for(var i = 0;i < columnSummary.sample.length && i < 10;++i)
       {
         content += "<li>" + columnSummary.sample[i] + "</li>"
       }

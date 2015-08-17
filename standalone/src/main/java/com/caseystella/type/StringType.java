@@ -12,7 +12,7 @@ public class StringType implements ITypeHandler {
     public ValueSummary summarize(String name, Object value) {
         ValueSummary ret = new ValueSummary();
         ret.baseType = Type.STRING;
-        if(value == null)
+        if(value == null || value.toString().trim().length() == 0)
         {
             ret.inferredType = Type.MISSING;
             ret.canonicalValue = null;
