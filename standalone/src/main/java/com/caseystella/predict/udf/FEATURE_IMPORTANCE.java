@@ -10,6 +10,7 @@ import org.apache.pig.EvalFunc;
 import org.apache.pig.data.*;
 import org.apache.pig.impl.logicalLayer.FrontendException;
 import org.apache.pig.impl.logicalLayer.schema.Schema;
+import weka.core.Attribute;
 import weka.core.Instances;
 
 import java.io.IOException;
@@ -51,9 +52,12 @@ public class FEATURE_IMPORTANCE extends EvalFunc<DataBag> {
         DataBag ret = DefaultBagFactory.getInstance().newDefaultBag();
         DataBag data = (DataBag) tuple.get(1);
         Instances instances = toArff.getInstances(data, matrix, targetVariable, fieldToPosition);
+        List<Attribute> attributes = matrix.getAttributes(targetVariable);
+        System.out.println("Created instances for " + targetVariable + " = " + attributes.size() + "x" + instances.size());
         List<FeatureImportance.Importance> importances = null;
         try {
             importances = new FeatureImportance().findImportance(instances, matrix.getAttributes(targetVariable), isRegression);
+            System.out.println("Computed Importance for " + targetVariable);
         } catch (Exception e) {
             throw new RuntimeException("Unable to compute feature importance.", e);
         }

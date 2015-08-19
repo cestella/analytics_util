@@ -30,26 +30,24 @@ public class OVERLAPPING_COLUMNS extends EvalFunc<DataBag> {
         int numFolds = 0;
         for(Tuple t : (DataBag)tuple.get(0))
         {
-            DataBag db = (DataBag) t.get(0);
-            for(Tuple result : db)
+            String col = (String) t.get(0);
+            Integer num = columnToNumFold.get(col);
+            if(num == null)
             {
-                String col = (String) result.get(0);
-                Integer num = columnToNumFold.get(col);
-                if(num == null)
-                {
-                    num = 0;
-                }
-                columnToNumFold.put(col, num+1);
+                num = 0;
             }
+            columnToNumFold.put(col, num+1);
             numFolds++;
         }
         for(Map.Entry<String, Integer> entry : columnToNumFold.entrySet())
         {
             double pctFolds = (1.0*entry.getValue())/numFolds;
-            if(pctFolds > minimumInclusionThreshold)
+            System.out.println(entry.getKey() + " => " + pctFolds);
+            if(pctFolds >= minimumInclusionThreshold)
             {
                 Tuple t = DefaultTupleFactory.getInstance().newTuple(1);
                 t.set(0, entry.getKey());
+                ret.add(t);
             }
         }
 

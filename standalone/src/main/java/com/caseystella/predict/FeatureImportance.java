@@ -1,9 +1,6 @@
 package com.caseystella.predict;
 
-import com.caseystella.predict.feature.FeatureMatrix;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import hr.irb.fastRandomForest.FastRandomForest;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import smile.data.AttributeDataset;
 import smile.data.parser.ArffParser;

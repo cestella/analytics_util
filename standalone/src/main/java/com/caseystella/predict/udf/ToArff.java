@@ -106,7 +106,7 @@ public class ToArff {
                     }
                 }
             }
-            double missing = foundCategory?1.0:0.0;
+            double missing = foundCategory?0.0:1.0;
             if(!foundCategory && isTargetVariable)
             {
                 return null;

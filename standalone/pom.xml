@@ -18,15 +18,19 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
-  <repositories>
+  <distributionManagement>
+    <snapshotRepository>
+      <id>sonatype-nexus-snapshots</id>
+      <name>Sonatype Nexus snapshot repository</name>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
     <repository>
-      <id>local-dependencies</id>
-      <name>local</name>
-      <url>file://${project.basedir}/repo</url>
-      <releases><enabled>true</enabled><updatePolicy>always</updatePolicy></releases>
-      <snapshots><enabled>true</enabled><updatePolicy>always</updatePolicy></snapshots>
+      <id>nexus-releases</id>
+      <name>Nexus Release Repository</name>
+      <url>http://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
     </repository>
-  </repositories>
+  </distributionManagement>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.pig</groupId>
@@ -41,16 +45,7 @@
       <version>${pig.version}</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>hr.irb</groupId>
-      <artifactId>fastRandomForest</artifactId>
-      <version>0.99</version>
-    </dependency>
-    <dependency>
-      <groupId>nz.ac.waikato.cms.weka</groupId>
-      <artifactId>weka-dev</artifactId>
-      <version>3.7.12</version>
-    </dependency>
+
     <dependency>
       <groupId>org.antlr</groupId>
       <artifactId>antlr4</artifactId>
@@ -79,6 +74,12 @@
       <artifactId>smile-core</artifactId>
       <version>1.0.3</version>
     </dependency>
+    <dependency>
+      <groupId>nz.ac.waikato.cms.weka</groupId>
+      <artifactId>weka-dev</artifactId>
+      <version>3.7.12</version>
+    </dependency>
+
   </dependencies>
   <build>
     <plugins>

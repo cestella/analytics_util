@@ -113,7 +113,7 @@ public class FeatureMatrix {
         {
             ret.add(targetAttribute);
         }
-        else
+        else if(targetVariable != null && targetVariable.length() > 0)
         {
             throw new IllegalStateException("Must have a target attribute!");
         }

@@ -231,13 +231,14 @@ public class FeatureMatrixTest {
             Assert.assertEquals(attributes, Joiner.on('\n').join(matrix.getAttributes("iris_class")));
         }
         {
-            Assert.assertEquals(matrix.getAttributes("sepal_width").size(), 7);
+            Assert.assertEquals(matrix.getAttributes("sepal_width").size(), 8);
             String attributes = "@attribute sepal_length numeric\n" +
                     "@attribute petal_length numeric\n" +
                     "@attribute petal_width numeric\n" +
                     "@attribute iris_class" + Constants.ONE_HOT_ENCODING_SEPARATOR + "Iris-setosa numeric\n" +
                     "@attribute iris_class" + Constants.ONE_HOT_ENCODING_SEPARATOR + "Iris-versicolor numeric\n" +
                     "@attribute iris_class" + Constants.ONE_HOT_ENCODING_SEPARATOR + "Iris-virginica numeric\n" +
+                    "@attribute iris_class" + Constants.ONE_HOT_ENCODING_SEPARATOR + "missing numeric\n" +
                     "@attribute sepal_width numeric";
             Assert.assertEquals(attributes, Joiner.on('\n').join(matrix.getAttributes("sepal_width")));
         }
@@ -280,10 +281,11 @@ public class FeatureMatrixTest {
                     "@attribute iris_class->Iris-setosa numeric\n" +
                     "@attribute iris_class->Iris-versicolor numeric\n" +
                     "@attribute iris_class->Iris-virginica numeric\n" +
+                    "@attribute iris_class->missing numeric\n"+
                     "@attribute sepal_width numeric\n" +
                     "\n" +
                     "@data\n" +
-                    "5.1,1.4,0.2,1,0,0,3.5";
+                    "5.1,1.4,0.2,1,0,0,0,3.5";
             Assert.assertEquals(arff_out, instances.toString());
         }
     }
