@@ -1,9 +1,11 @@
-package com.caseystella.predict.udf;
+package com.caseystella.predict.udf.pig;
 
 import com.caseystella.predict.FeatureImportance;
 import com.caseystella.predict.feature.FeatureMatrix;
 import com.caseystella.predict.feature.FeatureType;
+import com.caseystella.predict.feature.ToArff;
 import com.caseystella.util.pig.Helper;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import org.apache.commons.io.IOUtils;
 import org.apache.pig.EvalFunc;
@@ -51,7 +53,7 @@ public class FEATURE_IMPORTANCE extends EvalFunc<DataBag> {
         }
         DataBag ret = DefaultBagFactory.getInstance().newDefaultBag();
         DataBag data = (DataBag) tuple.get(1);
-        Instances instances = toArff.getInstances(data, matrix, targetVariable, fieldToPosition);
+        Instances instances = toArff.getInstances(Iterables.transform(data, TupleWrapper.TO_WRAPPER), matrix, targetVariable, fieldToPosition);
         List<Attribute> attributes = matrix.getAttributes(targetVariable);
         System.out.println("Created instances for " + targetVariable + " = " + attributes.size() + "x" + instances.size());
         List<FeatureImportance.Importance> importances = null;

@@ -1,4 +1,4 @@
-package com.caseystella.predict.udf;
+package com.caseystella.predict.udf.pig;
 
 import com.google.common.collect.Maps;
 import org.apache.pig.EvalFunc;

@@ -40,12 +40,18 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>org.apache.hive</groupId>
+      <artifactId>hive-exec</artifactId>
+      <version>${hive.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.pig</groupId>
       <artifactId>pigunit</artifactId>
       <version>${pig.version}</version>
       <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>org.antlr</groupId>
       <artifactId>antlr4</artifactId>

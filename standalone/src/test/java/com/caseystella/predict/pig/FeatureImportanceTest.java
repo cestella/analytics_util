@@ -22,8 +22,8 @@ import java.util.List;
 public class FeatureImportanceTest extends PigTests {
 
     /**
-     DEFINE GEN_TARGETS com.caseystella.predict.udf.GEN_TARGETS('data/iris_features.json');
-     DEFINE FEATURE_IMPORTANCE com.caseystella.predict.udf.FEATURE_IMPORTANCE('data/iris_features.json');
+     DEFINE GEN_TARGETS com.caseystella.predict.udf.pig.GEN_TARGETS('data/iris_features.json');
+     DEFINE FEATURE_IMPORTANCE com.caseystella.predict.udf.pig.FEATURE_IMPORTANCE('data/iris_features.json');
      DATA = load 'data/iris.csv' using PigStorage(',') as ( sepal_length:chararray
                                                           , sepal_width:chararray
                                                           , petal_length:chararray

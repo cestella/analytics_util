@@ -1,7 +1,9 @@
-package com.caseystella.predict.udf;
+package com.caseystella.predict.udf.pig;
 
 import com.caseystella.predict.feature.FeatureMatrix;
+import com.caseystella.predict.feature.ToArff;
 import com.caseystella.util.pig.Helper;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import org.apache.commons.io.IOUtils;
 import org.apache.pig.EvalFunc;
@@ -53,7 +55,7 @@ public class VECTORIZE extends EvalFunc<DataBag> {
             loadCols(getInputSchema().getField(0).schema.getField(0).schema);
         }
         DataBag data = (DataBag) tuple.get(0);
-        Instances instances = toArff.getInstances(data, matrix, "", fieldToPosition);
+        Instances instances = toArff.getInstances(Iterables.transform(data, TupleWrapper.TO_WRAPPER), matrix, "", fieldToPosition);
         List<Attribute> attributes = matrix.getAttributes("");
         DataBag ret = DefaultBagFactory.getInstance().newDefaultBag();
         for(Instance instance : instances)

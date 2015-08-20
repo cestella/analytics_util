@@ -1,8 +1,9 @@
-package com.caseystella.predict.udf;
+package com.caseystella.predict.feature;
 
 import com.caseystella.predict.Constants;
 import com.caseystella.predict.feature.FeatureMatrix;
 import com.caseystella.predict.feature.FeatureType;
+import com.caseystella.predict.udf.ITupleWrapper;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
@@ -13,6 +14,7 @@ import org.apache.pig.data.DataBag;
 import org.apache.pig.data.Tuple;
 import weka.core.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -20,7 +22,7 @@ import java.util.Map;
  * Created by cstella on 8/15/15.
  */
 public class ToArff {
-    public static class TO_INSTANCE implements Function<Tuple, Instance>
+    public static class TO_INSTANCE implements Function<ITupleWrapper, Instance>
     {
         private FeatureMatrix fm;
         private String targetVariable;
@@ -118,7 +120,7 @@ public class ToArff {
         }
 
         @Override
-        public Instance apply(Tuple objects) {
+        public Instance apply(ITupleWrapper objects) {
             double[] ret = new double[attributes.size()];
             int featuresFilledIn = 0;
             for(FeatureMatrix.Feature feature : fm.getFeatures())
@@ -134,7 +136,7 @@ public class ToArff {
                                 + Joiner.on("\n").join(columnToPosition.entrySet()));
                     }
                     o = objects.get(columnToPosition.get(feature.getColumn()));
-                } catch (ExecException e) {
+                } catch (IOException e) {
                     throw new IllegalStateException(e);
                 }
                 if(feature.getType() == FeatureType.CATEGORICAL)
@@ -179,7 +181,7 @@ public class ToArff {
         }
 
     }
-    public Instances getInstances(Iterable<Tuple> bag, FeatureMatrix matrix, String targetVariable, Map<String, Integer> columnToPositions)
+    public Instances getInstances(Iterable<ITupleWrapper> bag, FeatureMatrix matrix, String targetVariable, Map<String, Integer> columnToPositions)
     {
         ArrayList<Attribute> attributes = matrix.getAttributes(targetVariable);
         Instances instances =  new Instances(targetVariable, attributes, 0);

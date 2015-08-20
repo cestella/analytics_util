@@ -1,4 +1,4 @@
-package com.caseystella.predict.udf;
+package com.caseystella.predict.udf.pig;
 
 import org.apache.pig.EvalFunc;
 import org.apache.pig.data.*;

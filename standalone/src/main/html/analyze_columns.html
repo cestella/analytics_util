@@ -138,8 +138,7 @@ table {
           }
                             );
     });
-
-  }
+    }
 
   function writeTable() {
     var content = "<table ><tr><th>Column</th><th>Predicted Type</th><th>Distinct Count</th><th>Type Distribution</th></tr>";
@@ -226,57 +225,70 @@ $(document).ready(function () {
         // IF CSV, don't do event.preventDefault() or return false
         // We actually need this to be a typical hyperlink
     });
+    $(function() {
+      //$( "#tabs" ).tabs();
+    });
+
 }); 
 </script>
 </head>
 <body>
-
-<div id="container">
-<div id="top">
 <h1><span style="color:red;">C</span>asey's <span style="color:red;">D</span>ata <span style="color:red;">A</span>nalysis <span style="color:red;">T</span>ool</h1>
-<h2>Choose data file to load: <input type="file" id="files" name="files[]" multiple />
-<a href="#" class="export">Export to CSV</a>
-</h2>
-<script>
-  function handleFileSelect(evt) {
-    var files = evt.target.files; // FileList object
+<div id="tabs">
+  <ul>
+    <li><a href="#syntactic">Syntactic</a></li>
+    <li><a href="#semantic">Semantic</a></li>
+  </ul>
+  <div id="syntactic">
+    <div id="container">
+      <div id="top">
+        <h2>Choose data file to load: <input type="file" id="files" name="files[]" multiple />
+          <a href="#" class="export">Export to CSV</a>
+        </h2>
+        <script>
+function handleFileSelect(evt) {
+  var files = evt.target.files; // FileList object
 
-    // files is a FileList of File objects. List some properties.
-    var output = [];
-    for (var i = 0, f; f = files[i]; i++) {
-       if (!f.type.match('json.*')) {
-        continue;
-       }
-       var reader = new FileReader();
-       // Closure to capture the file information.
-       reader.onload = (function(theFile) {
-        return function(e) {
-          eval(e.target.result)
-          writeTable()
-        };
-        })(f);
-       reader.readAsText(f);
+  // files is a FileList of File objects. List some properties.
+  var output = [];
+  for (var i = 0, f; f = files[i]; i++) {
+    if (!f.type.match('json.*')) {
+      continue;
     }
+    var reader = new FileReader();
+    // Closure to capture the file information.
+    reader.onload = (function(theFile) {
+      return function(e) {
+        eval(e.target.result)
+        writeTable()
+      };
+    })(f);
+    reader.readAsText(f);
   }
+}
 
-  document.getElementById('files').addEventListener('change', handleFileSelect, false);
-  
-
-</script> 
+document.getElementById('files').addEventListener('change', handleFileSelect, false);
 
 
-</div>
-<div id="leftnav">
-  <h3>Columns</h3>
-  <div id="data_table">
-    Specify a file and this will be populated.
+        </script> 
+
+
+      </div> <!-- end top -->
+      <div id="leftnav">
+        <h3>Columns</h3>
+        <div id="data_table">
+          Specify a file and this will be populated.
+        </div>
+      </div><!-- end leftnav -->
+      <div id="content" title="Column Detail">
+      </div><!-- end content -->
+    </div> <!-- end container -->
+  </div> <!-- end syntactic tab-->
+  <div id="semantic">
+  </div> <!-- end semantic tab -->
+  </div><!-- end  tabs -->
+  <div id="footer">
+Keep on Hadoopin'! :)
   </div>
-</div>
-<div id="content" title="Column Detail">
-</div>
-<div id="footer">
-  Keep on Hadoopin'! :)
-</div>
-</div>
 </body>
 </html>

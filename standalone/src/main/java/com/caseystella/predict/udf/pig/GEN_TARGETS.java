@@ -1,4 +1,4 @@
-package com.caseystella.predict.udf;
+package com.caseystella.predict.udf.pig;
 
 import com.caseystella.predict.feature.FeatureMatrix;
 import com.caseystella.util.pig.Helper;

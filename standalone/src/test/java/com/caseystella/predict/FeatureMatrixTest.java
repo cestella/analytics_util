@@ -1,7 +1,7 @@
 package com.caseystella.predict;
 
 import com.caseystella.predict.feature.FeatureMatrix;
-import com.caseystella.predict.udf.ToArff;
+import com.caseystella.predict.feature.ToArff;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;

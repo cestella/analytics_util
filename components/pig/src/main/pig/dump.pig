@@ -1,7 +1,7 @@
 register ./textProcessing-1.0-SNAPSHOT-shaded.jar;
 
-DEFINE WholeFileLoader com.hortonworks.example.pig.WholeFileLoader();
-DEFINE extractor com.hortonworks.example.pig.TikaExtractor();
+DEFINE WholeFileLoader com.caseystella.util.pig.loader.WholeFileLoader();
+DEFINE extractor com.caseystella.util.pig.udf.ContentExtractor();
 
 A = load '$input' using WholeFileLoader;
 
