@@ -1,4 +1,4 @@
-register ./textProcessing-1.0-SNAPSHOT-shaded.jar;
+register ./pig-1.0-SNAPSHOT-shaded.jar;
 
 DEFINE WholeFileLoader com.caseystella.util.pig.loader.WholeFileLoader();
 DEFINE extractor com.caseystella.util.pig.udf.ContentExtractor();
