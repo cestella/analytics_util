@@ -45,7 +45,6 @@
   <modules>
     <module>components/common</module>
     <module>components/pig</module>
-    <module>standalone</module>
   </modules>
   <dependencies>
     <dependency>
