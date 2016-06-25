@@ -45,6 +45,7 @@
   <modules>
     <module>components/common</module>
     <module>components/pig</module>
+    <module>components/syntactic_analysis</module>
   </modules>
   <dependencies>
     <dependency>
