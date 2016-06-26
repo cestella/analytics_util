@@ -29,9 +29,33 @@ public class TypeImputerTest {
             , TypeInference.Type.infer("NaN")
     );
   }
+  /*
   @Test
   public void testDateTypes() {
-
+    {
+      String date = "00.0-00.0";
+      Assert.assertEquals(ValueSummary.of(date, TypeInference.Type.STRING, TypeInference.Modifier.VALID)
+              , TypeInference.Type.infer(date)
+      );
+    }
+    {
+      String date = "0.0-00.0";
+      Assert.assertEquals(ValueSummary.of(date, TypeInference.Type.STRING, TypeInference.Modifier.VALID)
+              , TypeInference.Type.infer(date)
+      );
+    }
+    {
+      String date = "00.0-000.0";
+      Assert.assertEquals(ValueSummary.of(date, TypeInference.Type.STRING, TypeInference.Modifier.VALID)
+              , TypeInference.Type.infer(date)
+      );
+    }
+    {
+      String date = "0.0-00";
+      Assert.assertEquals(ValueSummary.of(date, TypeInference.Type.STRING, TypeInference.Modifier.VALID)
+              , TypeInference.Type.infer(date)
+      );
+    }
     {
       String date = "20120";
       Assert.assertEquals(ValueSummary.of(date, TypeInference.Type.INTEGRAL, TypeInference.Modifier.VALID)
@@ -98,7 +122,7 @@ public class TypeImputerTest {
               , TypeInference.Type.infer(date)
       );
     }
-  }
+  }*/
 
   @Test
   public void testStringTypes() {

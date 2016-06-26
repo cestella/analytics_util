@@ -196,11 +196,9 @@ public class SummarizerCLI {
   public static void main(String... argv) throws ParseException, IOException {
     Parser parser = new PosixParser();
     CommandLine cli = SummarizerOptions.parse(parser, argv);
-    Map<String, Summary> output =null;
+    TotalSummary output =null;
     if(SummarizerOptions.LOAD.has(cli)) {
-      output = JSONUtils.INSTANCE.load(new File(SummarizerOptions.LOAD.get(cli)), new TypeReference<Map<String, Summary>> (){
-
-      });
+      output = JSONUtils.INSTANCE.load(new File(SummarizerOptions.LOAD.get(cli)), TotalSummary.class);
     }
     else {
       SparkConf conf = new SparkConf().setAppName("Summarizer");
@@ -213,7 +211,7 @@ public class SummarizerCLI {
       int numericSampleSize = Integer.parseInt(SummarizerOptions.NUMERIC_SAMPLE_SIZE.get(cli, "1500"));
       int nonNumericSampleSize = Integer.parseInt(SummarizerOptions.NON_NUMERIC_SAMPLE_SIZE.get(cli, "20"));
       List<Double> percentiles = getPercentiles(SummarizerOptions.PERCENTILES.get(cli, "25,50,75,95,99"));
-      output = Summarizer.summarize(df, numericSampleSize, nonNumericSampleSize, percentiles);
+      output = Summarizer.summarize(df, numericSampleSize, nonNumericSampleSize, percentiles, 100);
     }
     if(SummarizerOptions.OUTPUT.has(cli)) {
       File out = new File(SummarizerOptions.OUTPUT.get(cli));

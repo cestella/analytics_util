@@ -1,10 +1,12 @@
 package com.caseystella.output;
 
 import com.caseystella.summarize.Summary;
+import com.caseystella.summarize.TotalSummary;
 import com.google.common.base.Function;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import com.googlecode.lanterna.TerminalSize;
+import com.googlecode.lanterna.TextCharacter;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.gui2.*;
 import com.googlecode.lanterna.gui2.dialogs.ActionListDialogBuilder;
@@ -20,22 +22,54 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class CursesVisualize {
-  public void display(Map<String, Summary> columnSummaries) throws IOException {
+
+  public void display(final TotalSummary totalSummary) throws IOException {
     // Setup terminal and screen layers
     Terminal terminal = new DefaultTerminalFactory().createTerminal();
     Screen screen = new TerminalScreen(terminal);
     screen.startScreen();
-    // Create gui and start gui
-    MultiWindowTextGUI gui = new MultiWindowTextGUI(screen, new DefaultWindowManager(), new EmptySpace(TextColor.ANSI.BLUE));
-    ActionListDialogBuilder builder = new ActionListDialogBuilder().setTitle("Columns")
-                                                                   .setDescription("Choose a column");
-    for(Map.Entry<String, Summary> kv : columnSummaries.entrySet()) {
-      builder = builder.addAction(kv.getKey(), new ColumnDisplayer(gui, kv.getValue(), kv.getKey()));
+    Table<String> connectedColumns = new Table<>("Col 1", "Col 2");
+    connectedColumns.setVisibleRows(20);
+
+    for(Map<String, Object> columnConn : totalSummary.getConnectedColumns()) {
+      String col1 = (String)columnConn.get("column 1");
+      String col2 = (String)columnConn.get("column 2");
+      connectedColumns.getTableModel().addRow(col1 + "  ", col2);
     }
-    builder.build()
-            .showDialog(gui);
+    // Create gui and start gui
+    final MultiWindowTextGUI gui = new MultiWindowTextGUI(screen, new DefaultWindowManager(), new EmptySpace(TextColor.ANSI.BLUE));
+
+
+    final BasicWindow window = new BasicWindow();
+    window.setHints(Arrays.asList(Window.Hint.CENTERED));
+    Panel panel = new Panel();
+    final ComboBox<String> comboBox = new ComboBox<String>().setReadOnly(false);
+    for(Map.Entry<String, Summary> kv : totalSummary.getColumnSummaries().entrySet()) {
+      comboBox.addItem(kv.getKey());
+    }
+    Button button = new Button("Show", new Runnable() {
+      @Override
+      public void run() {
+        String column = comboBox.getSelectedItem();
+        Summary summary = totalSummary.getColumnSummaries().get(column);
+        new ColumnDisplayer(gui, summary, column).run();
+      }
+    });
+    panel.setLayoutManager(new GridLayout(2).setVerticalSpacing(2).setHorizontalSpacing(0));
+    panel.addComponent(new Label("Column Statistical Details"));
+    panel.addComponent(new EmptySpace(new TerminalSize(0, 0))); // Empty space underneath labels
+    panel.addComponent(comboBox);
+    panel.addComponent(button);
+    panel.addComponent(new Label("Interesting Connections\nBased on Loglikelihood"));
+    panel.addComponent(new EmptySpace(new TerminalSize(0, 0))); // Empty space underneath labels
+    panel.addComponent(connectedColumns);
+    window.setCloseWindowWithEscape(true);
+    window.setComponent(panel);
+    gui.addWindowAndWait(window);
+
   }
 
 
@@ -51,6 +85,7 @@ public class CursesVisualize {
 
     public Table<String> getCountTable() {
       Table<String> table = new Table<>("Type", "Modifier", "Count", "Distinct Count");
+      table.setVisibleRows(10);
       Map<Tuple2<String, String>, Tuple2<String, String>> aggregateMap = new HashMap<>();
       for(Map<String, Object> map : columnSummary.getCountByType()) {
         String typeMod = map.get("type").toString();
@@ -85,22 +120,24 @@ public class CursesVisualize {
         String modifier = Iterables.getLast(it, null);
         Map<String, Double> valueMap = (Map<String, Double>) kv.get("summary");
         Table<String> t = new Table<>("Canonical Value", "Count");
+        t.setVisibleRows(10);
         for(Map.Entry<String, Double> summarykv : valueMap.entrySet()) {
           t.getTableModel().addRow(summarykv.getKey(), summarykv.getValue().longValue() + "");
         }
-        ret.put(modifier + " " + type + " Canonical Representation Count", t );
+        ret.put("Canonical Representation Count\n" + modifier + " " + type  , t );
       }
       for(Map<String, Object> kv : columnSummary.getNumericValueSummary()) {
         String typeMod = kv.get("type").toString();
         Iterable<String> it = Splitter.on(":").split(typeMod);
         String type = Iterables.getFirst(it, null);
         String modifier = Iterables.getLast(it, null);
-        Map<String, Double> valueMap = (Map<String, Double>) kv.get("summary");
+        Map<String, Double> valueMap = new TreeMap<>((Map<String, Double>) kv.get("summary"));
         Table<String> t = new Table<>("Statistic", "Value");
+        t.setVisibleRows(10);
         for(Map.Entry<String, Double> summarykv : valueMap.entrySet()) {
           t.getTableModel().addRow(summarykv.getKey(), summarykv.getValue().longValue() + "");
         }
-        ret.put(modifier + " " + type + " Distributional Summary", t );
+        ret.put("Distributional Summary\n" + modifier + " " + type, t );
       }
       return ret;
     }

@@ -38,7 +38,10 @@ public class TypedColumnWithModifier extends TypedColumn {
   }
 
   public TypedColumnWithModifierAndValue withValue(Object o) {
-    return new TypedColumnWithModifierAndValue(this, o);
+    return withValue(o, true);
+  }
+  public TypedColumnWithModifierAndValue withValue(Object o, boolean canonicalize) {
+    return new TypedColumnWithModifierAndValue(this, o, canonicalize);
   }
 
 }

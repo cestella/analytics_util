@@ -29,7 +29,7 @@ public class TypeInference {
 
     @Override
     public String canonicalize(String base) {
-      return base.replaceAll("\\d", "d");
+      return base.replaceAll("\\d", "{d}" );
     }
   }
   public static class FloatHandler implements TypeHandler {
@@ -50,7 +50,7 @@ public class TypeInference {
 
     @Override
     public String canonicalize(String base) {
-      return base.replaceAll("\\d", "d");
+      return base.replaceAll("\\d",  "{d}" );
     }
   }
   public static class StringHandler implements TypeHandler {
@@ -58,7 +58,7 @@ public class TypeInference {
     @Override
     public Optional<ValueSummary> summarize(Object o) {
       String s = ConversionUtils.convert(o, String.class);
-      if(StringUtils.isEmpty(s)) {
+      if(s == null || StringUtils.isEmpty(s.trim())) {
         return Optional.of(ValueSummary.of(s, Type.STRING, Modifier.MISSING));
       }
       if(o instanceof String) {
@@ -69,11 +69,11 @@ public class TypeInference {
 
     @Override
     public String canonicalize(String o) {
-      return ("" + o).trim().toLowerCase().replaceAll("\\d", "d");
+      return ("" + o).trim().toLowerCase().replaceAll("\\d", "{d}");
     }
   }
 
-  public static class DateHandler implements TypeHandler {
+  /*public static class DateHandler implements TypeHandler {
 
     @Override
     public Optional<ValueSummary> summarize(Object s) {
@@ -107,7 +107,7 @@ public class TypeInference {
     public String canonicalize(String o) {
       return o.replaceAll("\\d", "d");
     }
-  }
+  }*/
 
   public enum Modifier {
     VALID, MISSING
@@ -115,7 +115,7 @@ public class TypeInference {
 
 
   public enum Type {
-    DATE(new DateHandler(), false),
+    //DATE(new DateHandler(), false),
     INTEGRAL(new IntegralHandler(), true),
     FLOAT(new FloatHandler(), true),
     STRING(new StringHandler(), false),

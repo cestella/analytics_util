@@ -3,8 +3,11 @@ package com.caseystella.summarize;
 public class TypedColumnWithModifierAndValue extends TypedColumnWithModifier {
   String value;
   public TypedColumnWithModifierAndValue(TypedColumnWithModifier tcwm, Object value) {
+   this(tcwm, value, true);
+  }
+  public TypedColumnWithModifierAndValue(TypedColumnWithModifier tcwm, Object value, boolean canonicalize) {
     super(tcwm.column, tcwm.type, tcwm.modifier);
-    this.value = tcwm.type.getHandler().canonicalize(value + "");
+    this.value = canonicalize?tcwm.type.getHandler().canonicalize(value + ""):(value + "");
   }
 
   @Override

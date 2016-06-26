@@ -2,9 +2,14 @@ package com.caseystella.summarize;
 
 import com.caseystella.type.TypeInference;
 import com.caseystella.type.ValueSummary;
+import com.caseystella.util.LogLikelihood;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.spark.api.java.JavaPairRDD;
+import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.api.java.function.PairFlatMapFunction;
@@ -13,18 +18,21 @@ import org.apache.spark.sql.DataFrame;
 import org.apache.spark.sql.Row;
 import scala.Tuple2;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class Summarizer {
+public class Summarizer implements Serializable {
 
 
-  public static Map<String, Summary> summarize( DataFrame df
+  public static TotalSummary summarize( DataFrame df
                           , int numericSampleSize
                           , final int nonNumericSampleSize
                           , final List<Double> percentiles
+                          , final int numDistinctValuesCutoff
                           )
   {
-    Map<String, Summary> columnSummaries = new LinkedHashMap<>();
+    TotalSummary totalSummary = new TotalSummary();
+    Map<String, Summary> columnSummaries = totalSummary.getColumnSummaries();
     final List<String> columns = new ArrayList<>();
     for(String s : df.columns()) {
       columns.add(s);
@@ -56,7 +64,7 @@ public class Summarizer {
         return ret;
       }
     }).cache();
-
+    final long totalCount = summarize.count();
     //count by type
     Map<TypedColumnWithModifier, Long> countByType = null;
     {
@@ -77,7 +85,7 @@ public class Summarizer {
       }
     }
     //count approximate distinct values by type
-    Map<TypedColumnWithModifier, Long> countDistinctByType = new HashMap<>();
+    final Map<TypedColumnWithModifier, Long> countDistinctByType = new HashMap<>();
     {
       Map<TypedColumnWithModifier, Object> tmp = summarize.mapToPair(new PairFunction<Tuple2<TypedColumnWithModifier, ValueSummary>,TypedColumnWithModifier, Long>() {
         @Override
@@ -95,6 +103,81 @@ public class Summarizer {
       }
     }
 
+    {
+
+      final Map<TypedColumnWithModifierAndValue, Long> categoricalCounts =
+      df.javaRDD().flatMapToPair(new PairFlatMapFunction<Row, TypedColumnWithModifierAndValue, Long>() {
+      @Override
+      public Iterable<Tuple2<TypedColumnWithModifierAndValue, Long>> call(Row row) throws Exception {
+        List<Tuple2<TypedColumnWithModifierAndValue, Long>> categoricalVariables = new ArrayList<>();
+        for (int i = 0; i < row.size(); ++i) {
+          String column = columns.get(i);
+          Object o = row.get(i);
+          ValueSummary summary = TypeInference.Type.infer(o);
+          TypedColumnWithModifier columnWithModifier = new TypedColumnWithModifier(column, summary.getType(), summary.getModifier());
+          Long l = countDistinctByType.get(columnWithModifier) ;
+          if(l != null && l < numDistinctValuesCutoff) {
+            categoricalVariables.add(new Tuple2<>(columnWithModifier.withValue(summary.getValue(), false), 1L));
+          }
+        }
+        return categoricalVariables;
+      }
+    }).reduceByKey(
+              new Function2<Long, Long, Long>() {
+                @Override
+                public Long call(Long x, Long y) throws Exception {
+                  return x + y;
+                }
+              }
+      ).collectAsMap();
+
+      final List<Tuple2<Tuple2<TypedColumnWithModifierAndValue, TypedColumnWithModifierAndValue>, Double>> g_score_outliers=
+      df.javaRDD().flatMapToPair(new PairFlatMapFunction<Row, Tuple2<TypedColumnWithModifierAndValue, TypedColumnWithModifierAndValue>, Long>() {
+      @Override
+      public Iterable<Tuple2<Tuple2<TypedColumnWithModifierAndValue,TypedColumnWithModifierAndValue>, Long>> call(Row row) throws Exception {
+        List<TypedColumnWithModifierAndValue> categoricalVariables = new ArrayList<>();
+        for (int i = 0; i < row.size(); ++i) {
+          String column = columns.get(i);
+          Object o = row.get(i);
+          ValueSummary summary = TypeInference.Type.infer(o);
+          TypedColumnWithModifier columnWithModifier = new TypedColumnWithModifier(column, summary.getType(), summary.getModifier());
+          Long l = countDistinctByType.get(columnWithModifier) ;
+          if(l != null && l < numDistinctValuesCutoff) {
+            categoricalVariables.add(columnWithModifier.withValue(summary.getValue(), false));
+          }
+        }
+        List<Tuple2<Tuple2<TypedColumnWithModifierAndValue,TypedColumnWithModifierAndValue>, Long> > ret = new ArrayList<>();
+        for(int i = 0;i < categoricalVariables.size();++i) {
+          for(int j = i+1;j < categoricalVariables.size();++j) {
+            ret.add(new Tuple2<>(new Tuple2<>(categoricalVariables.get(i), categoricalVariables.get(j)), 1L));
+          }
+        }
+        return ret;
+      }
+    }).reduceByKey(
+              new Function2<Long, Long, Long>() {
+                @Override
+                public Long call(Long x, Long y) throws Exception {
+                  return x + y;
+                }
+              }
+      ).mapToPair(new PairFunction<Tuple2<Tuple2<TypedColumnWithModifierAndValue,TypedColumnWithModifierAndValue>,Long>, Tuple2<TypedColumnWithModifierAndValue,TypedColumnWithModifierAndValue>, Double>() {
+        @Override
+        public Tuple2<Tuple2<TypedColumnWithModifierAndValue, TypedColumnWithModifierAndValue>, Double> call(Tuple2<Tuple2<TypedColumnWithModifierAndValue, TypedColumnWithModifierAndValue>, Long> t) throws Exception {
+          long p_xy = t._2;
+          Long p_x = categoricalCounts.get(t._1._1);
+          if(p_x == null) {
+            p_x = 0L;
+          }
+          Long p_y = categoricalCounts.get(t._1._2);
+          if(p_y == null) {
+            p_y = 0L;
+          }
+          return new Tuple2<>(t._1, get_gscore(p_xy, p_x , p_y, totalCount ));
+        }
+      }).takeOrdered(10, new Comp());
+      totalSummary.setConnectedColumns(TotalSummary.toConnectedColumns(g_score_outliers));
+    }
     //numeric summarize
     Map<TypedColumnWithModifier, Map<String, Double>> numericValueSummary =  null;
     {
@@ -175,7 +258,7 @@ public class Summarizer {
         columnSummaries.get(kv.getKey()).getNonNumericValueSummary().addAll(kv.getValue());
       }
     }
-    return columnSummaries;
+    return totalSummary;
   }
 
   public static Map<String, Double> getTopK(Iterable<Tuple2<String, Long>> values, int k) {
@@ -192,7 +275,13 @@ public class Summarizer {
     }
     return ret;
   }
-
+  public static class Comp implements Comparator<Tuple2<Tuple2<TypedColumnWithModifierAndValue, TypedColumnWithModifierAndValue>, Double>>, Serializable
+  {
+    @Override
+    public int compare(Tuple2<Tuple2<TypedColumnWithModifierAndValue, TypedColumnWithModifierAndValue>, Double> o1, Tuple2<Tuple2<TypedColumnWithModifierAndValue, TypedColumnWithModifierAndValue>, Double> o2) {
+      return -1*Double.compare(o1._2, o2._2);
+    }
+  };
   public static Map<String, Double> statisticallySummarize(Iterable<Double> values, List<Double> percentiles) {
     DescriptiveStatistics statistics = new DescriptiveStatistics();
     Map<String, Double> ret = new HashMap<>();
@@ -224,5 +313,14 @@ public class Summarizer {
       }
     }
     return ret;
+  }
+
+  public static double get_gscore(long p_xy, long p_x, long p_y, long total) {
+    long k11 = p_xy;
+    long k12= (p_y - p_xy); //count of x without y
+    long k21= (p_x - p_xy); // count of y without x
+    long k22= total - (p_x + p_y - p_xy); //count of neither x nor y
+
+    return LogLikelihood.logLikelihoodRatio(k11, k12, k21, k22);
   }
 }
