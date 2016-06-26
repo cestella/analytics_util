@@ -14,6 +14,15 @@ public class Summary {
   List<Map<String, Object>> countDistinctByType = new ArrayList<>();
   List<Map<String, Object>> numericValueSummary =  new ArrayList<>();
   List<Map<String, Object>> nonNumericValueSummary = new ArrayList<>();
+  Map<String, String> synonyms = new HashMap<>();
+
+  public Map<String, String> getSynonyms() {
+    return synonyms;
+  }
+
+  public void setSynonyms(Map<String, String> synonyms) {
+    this.synonyms = synonyms;
+  }
 
   public List<Map<String, Object>> getCountByType() {
     return countByType;

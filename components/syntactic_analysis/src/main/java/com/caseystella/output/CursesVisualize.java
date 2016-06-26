@@ -19,10 +19,7 @@ import scala.Tuple2;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 public class CursesVisualize {
 
@@ -32,19 +29,24 @@ public class CursesVisualize {
     Screen screen = new TerminalScreen(terminal);
     screen.startScreen();
     Table<String> connectedColumns = new Table<>("Col 1", "Col 2");
-    connectedColumns.setVisibleRows(20);
+    connectedColumns.setVisibleRows(10);
 
     for(Map<String, Object> columnConn : totalSummary.getConnectedColumns()) {
       String col1 = (String)columnConn.get("column 1");
       String col2 = (String)columnConn.get("column 2");
       connectedColumns.getTableModel().addRow(col1 + "  ", col2);
     }
+
     // Create gui and start gui
     final MultiWindowTextGUI gui = new MultiWindowTextGUI(screen, new DefaultWindowManager(), new EmptySpace(TextColor.ANSI.BLUE));
 
 
     final BasicWindow window = new BasicWindow();
     window.setHints(Arrays.asList(Window.Hint.CENTERED));
+    window.setCloseWindowWithEscape(true);
+    Panel panel = new Panel();
+    panel.setLayoutManager(new GridLayout(1).setVerticalSpacing(1).setHorizontalSpacing(0));
+    /*
     Panel panel = new Panel();
     final ComboBox<String> comboBox = new ComboBox<String>().setReadOnly(false);
     for(Map.Entry<String, Summary> kv : totalSummary.getColumnSummaries().entrySet()) {
@@ -58,18 +60,22 @@ public class CursesVisualize {
         new ColumnDisplayer(gui, summary, column).run();
       }
     });
-    panel.setLayoutManager(new GridLayout(2).setVerticalSpacing(2).setHorizontalSpacing(0));
     panel.addComponent(new Label("Column Statistical Details"));
     panel.addComponent(new EmptySpace(new TerminalSize(0, 0))); // Empty space underneath labels
     panel.addComponent(comboBox);
     panel.addComponent(button);
     panel.addComponent(new Label("Interesting Connections\nBased on Loglikelihood"));
-    panel.addComponent(new EmptySpace(new TerminalSize(0, 0))); // Empty space underneath labels
+    panel.addComponent(new EmptySpace(new TerminalSize(0,0))); // Empty space underneath labels
     panel.addComponent(connectedColumns);
-    window.setCloseWindowWithEscape(true);
+    */
+    ActionListBox actionListBox = new ActionListBox();
+    for(Map.Entry<String, Summary> kv : totalSummary.getColumnSummaries().entrySet()) {
+      actionListBox.addItem(kv.getKey(), new ColumnDisplayer(gui, kv.getValue(), kv.getKey()));
+    }
+    panel.addComponent(new Label("Column Statistical Details"));
+    panel.addComponent(actionListBox);
     window.setComponent(panel);
     gui.addWindowAndWait(window);
-
   }
 
 
@@ -85,7 +91,7 @@ public class CursesVisualize {
 
     public Table<String> getCountTable() {
       Table<String> table = new Table<>("Type", "Modifier", "Count", "Distinct Count");
-      table.setVisibleRows(10);
+      table.setVisibleRows(5);
       Map<Tuple2<String, String>, Tuple2<String, String>> aggregateMap = new HashMap<>();
       for(Map<String, Object> map : columnSummary.getCountByType()) {
         String typeMod = map.get("type").toString();
@@ -110,6 +116,14 @@ public class CursesVisualize {
       }
       return table;
     }
+    public Table<String> getSimilarityTable(Map<String, String> entries) {
+      Table<String> t = new Table<>("word", "synonym");
+      t.setVisibleRows(5);
+      for(Map.Entry<String, String> synonyms : entries.entrySet()) {
+        t.getTableModel().addRow(synonyms.getKey(), synonyms.getValue());
+      }
+      return t;
+    }
 
     public Map<String, Table<String>> getValueTable() {
       Map<String, Table<String>> ret = new HashMap<>();
@@ -120,7 +134,7 @@ public class CursesVisualize {
         String modifier = Iterables.getLast(it, null);
         Map<String, Double> valueMap = (Map<String, Double>) kv.get("summary");
         Table<String> t = new Table<>("Canonical Value", "Count");
-        t.setVisibleRows(10);
+        t.setVisibleRows(5);
         for(Map.Entry<String, Double> summarykv : valueMap.entrySet()) {
           t.getTableModel().addRow(summarykv.getKey(), summarykv.getValue().longValue() + "");
         }
@@ -133,7 +147,7 @@ public class CursesVisualize {
         String modifier = Iterables.getLast(it, null);
         Map<String, Double> valueMap = new TreeMap<>((Map<String, Double>) kv.get("summary"));
         Table<String> t = new Table<>("Statistic", "Value");
-        t.setVisibleRows(10);
+        t.setVisibleRows(5);
         for(Map.Entry<String, Double> summarykv : valueMap.entrySet()) {
           t.getTableModel().addRow(summarykv.getKey(), summarykv.getValue().longValue() + "");
         }
@@ -158,7 +172,8 @@ public class CursesVisualize {
         panel.addComponent(new Label(labelTable.getKey()));
         panel.addComponent(labelTable.getValue());
       }
-
+      panel.addComponent(new Label("Possible Value Synonymns"));
+      panel.addComponent(getSimilarityTable(columnSummary.getSynonyms()));
       window.setCloseWindowWithEscape(true);
 
       // Create window to hold the panel

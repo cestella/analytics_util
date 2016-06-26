@@ -139,7 +139,7 @@ public class SummarizerIntegrationTest {
                                             )
                            , Row.class
                            );
-    TotalSummary summary = Summarizer.summarize(df, 5, 3, ImmutableList.of(10d, 25d, 50d, 75d, 95d, 99d), 5 );
+    TotalSummary summary = Summarizer.summarize(df, 5, 3, ImmutableList.of(10d, 25d, 50d, 75d, 95d, 99d), 5, 0.5, 2, 3 );
     System.out.println(JSONUtils.INSTANCE.toJSON(summary, true));
   }
 

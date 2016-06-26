@@ -113,6 +113,38 @@ public class SummarizerCLI {
         return o;
       }
     }
+    ),SIMILARITY_SCORE_CUTOFF("ssc", new Function<String, Option>() {
+      @Override
+      public Option apply(String code) {
+        Option o = new Option(code, "similarity_score_cutoff", true, "Similarity score cutoff.  Scores are cosine sim., so they range from [0,1], closer to 1 is more similar");
+        o.setRequired(false);
+        o.setType(Double.class);
+        o.setArgName("SCORE_CUTOFF");
+        return o;
+      }
+    }
+    ),
+    SIMILARITY_MIN_OCCURRANCE("smo", new Function<String, Option>() {
+      @Override
+      public Option apply(String code) {
+        Option o = new Option(code, "similarity_min_occurrance", true, "Min Occurrances to be considered for synonyms");
+        o.setRequired(false);
+        o.setType(Integer.class);
+        o.setArgName("NUM_OCCURANCES");
+        return o;
+      }
+    }
+    ),
+    SIMILARITY_VEC_SIZE("svs", new Function<String, Option>() {
+      @Override
+      public Option apply(String code) {
+        Option o = new Option(code, "similarity_vec_size", true, "Vector Size");
+        o.setRequired(false);
+        o.setType(Integer.class);
+        o.setArgName("DIM");
+        return o;
+      }
+    }
     )
     ;
     ;
@@ -211,7 +243,15 @@ public class SummarizerCLI {
       int numericSampleSize = Integer.parseInt(SummarizerOptions.NUMERIC_SAMPLE_SIZE.get(cli, "1500"));
       int nonNumericSampleSize = Integer.parseInt(SummarizerOptions.NON_NUMERIC_SAMPLE_SIZE.get(cli, "20"));
       List<Double> percentiles = getPercentiles(SummarizerOptions.PERCENTILES.get(cli, "25,50,75,95,99"));
-      output = Summarizer.summarize(df, numericSampleSize, nonNumericSampleSize, percentiles, 100);
+      double similarityScoreCutoff = Double.parseDouble(SummarizerOptions.SIMILARITY_SCORE_CUTOFF.get(cli, "0.8"));
+      int similarityDim= Integer.parseInt(SummarizerOptions.SIMILARITY_VEC_SIZE.get(cli, "100"));
+      int similarityMinOccurrance = Integer.parseInt(SummarizerOptions.SIMILARITY_MIN_OCCURRANCE.get(cli, "10"));
+      output = Summarizer.summarize(df, numericSampleSize
+                                   , nonNumericSampleSize, percentiles
+                                   , 100, similarityScoreCutoff
+                                   , similarityMinOccurrance
+                                   , similarityDim
+                                   );
     }
     if(SummarizerOptions.OUTPUT.has(cli)) {
       File out = new File(SummarizerOptions.OUTPUT.get(cli));

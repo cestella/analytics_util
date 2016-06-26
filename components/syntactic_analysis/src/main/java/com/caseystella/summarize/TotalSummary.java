@@ -12,6 +12,7 @@ public class TotalSummary implements Serializable {
   Map<String, Summary> columnSummaries = new HashMap<>();
   List<Map<String, Object> > connectedColumns = new ArrayList<>();
 
+
   public Map<String, Summary> getColumnSummaries() {
     return columnSummaries;
   }
@@ -51,9 +52,12 @@ public class TotalSummary implements Serializable {
   public static List<Map<String, Object>> toConnectedColumns(List<Tuple2<Tuple2<TypedColumnWithModifierAndValue, TypedColumnWithModifierAndValue>, Double>> g_score_outliers) {
     List<Map<String, Object> > connectedColumns = new ArrayList<>();
     for(Tuple2<Tuple2<TypedColumnWithModifierAndValue, TypedColumnWithModifierAndValue>, Double> score : g_score_outliers) {
+      int comp = score._1._1.column.compareTo(score._1._2.column);
+      String col1 = comp < 0?score._1._1.column:score._1._2.column;
+      String col2 = comp > 0?score._1._1.column:score._1._2.column;
       Map<String, Object> obj = new HashMap<>();
-      obj.put("column 1", score._1._1.column);
-      obj.put("column 2", score._1._2.column);
+      obj.put("column 1", col1);
+      obj.put("column 2", col2);
       obj.put("score", score._2);
       connectedColumns.add(obj);
     }

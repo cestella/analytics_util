@@ -29,6 +29,9 @@ public class Summarizer implements Serializable {
                           , final int nonNumericSampleSize
                           , final List<Double> percentiles
                           , final int numDistinctValuesCutoff
+                          , final double similarityCutoff
+                          , final int similarityMinOccurrances
+                          , final int vectorSize
                           )
   {
     TotalSummary totalSummary = new TotalSummary();
@@ -38,7 +41,11 @@ public class Summarizer implements Serializable {
       columns.add(s);
       columnSummaries.put(s, new Summary());
     }
-
+    SynonymHandler handler = new SynonymHandler(df, columns, similarityMinOccurrances, vectorSize, similarityCutoff);
+    Map<String, Map<String, String>> synonyms = handler.findSynonymsByColumn();
+    for(Map.Entry<String, Map<String, String>> kv : synonyms.entrySet()) {
+      columnSummaries.get(kv.getKey()).setSynonyms(kv.getValue());
+    }
     JavaPairRDD<TypedColumnWithModifier, ValueSummary> summarize =
     df.javaRDD().flatMapToPair(new PairFlatMapFunction<Row, TypedColumnWithModifier, ValueSummary>() {
       @Override
