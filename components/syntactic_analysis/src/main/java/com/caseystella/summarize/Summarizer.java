@@ -91,6 +91,16 @@ public class Summarizer implements Serializable {
         columnSummaries.get(kv.getKey()).getCountByType().addAll(kv.getValue());
       }
     }
+
+    for(Map.Entry<TypedColumnWithModifier, Long> col : countByType.entrySet()) {
+      Summary summary = totalSummary.getColumnSummaries().get(col.getKey().column);
+      if(col.getKey().modifier == TypeInference.Modifier.MISSING) {
+        summary.setNumInvalid(col.getValue());
+      }
+      long total = summary.getTotalCount() + col.getValue();
+      summary.setTotalCount(total);
+    }
+
     //count approximate distinct values by type
     final Map<TypedColumnWithModifier, Long> countDistinctByType = new HashMap<>();
     {

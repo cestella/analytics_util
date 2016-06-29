@@ -15,6 +15,24 @@ public class Summary {
   List<Map<String, Object>> numericValueSummary =  new ArrayList<>();
   List<Map<String, Object>> nonNumericValueSummary = new ArrayList<>();
   Map<String, String> synonyms = new HashMap<>();
+  Long numInvalid = 0L;
+  Long totalCount = 0L;
+
+  public Long getTotalCount() {
+    return totalCount;
+  }
+
+  public void setTotalCount(Long totalCount) {
+    this.totalCount = totalCount;
+  }
+
+  public Long getNumInvalid() {
+    return numInvalid;
+  }
+
+  public void setNumInvalid(Long numInvalid) {
+    this.numInvalid = numInvalid;
+  }
 
   public Map<String, String> getSynonyms() {
     return synonyms;

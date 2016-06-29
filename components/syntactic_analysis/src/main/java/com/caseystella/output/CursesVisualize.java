@@ -19,6 +19,7 @@ import scala.Tuple2;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.*;
 
 public class CursesVisualize {
@@ -69,8 +70,13 @@ public class CursesVisualize {
     panel.addComponent(connectedColumns);
     */
     ActionListBox actionListBox = new ActionListBox();
+    NumberFormat percentFormatter;
+
+    percentFormatter = NumberFormat.getPercentInstance();
     for(Map.Entry<String, Summary> kv : totalSummary.getColumnSummaries().entrySet()) {
-      actionListBox.addItem(kv.getKey(), new ColumnDisplayer(gui, kv.getValue(), kv.getKey()));
+      double percentMissing = kv.getValue().getNumInvalid().doubleValue() / kv.getValue().getTotalCount();
+      String actionName = kv.getKey() + " (" +percentFormatter.format(percentMissing) + " Missing)";
+      actionListBox.addItem(actionName, new ColumnDisplayer(gui, kv.getValue(), kv.getKey()));
     }
     panel.addComponent(new Label("Column Statistical Details"));
     panel.addComponent(actionListBox);
@@ -120,9 +126,16 @@ public class CursesVisualize {
       Table<String> t = new Table<>("word", "synonym");
       t.setVisibleRows(5);
       for(Map.Entry<String, String> synonyms : entries.entrySet()) {
-        t.getTableModel().addRow(synonyms.getKey(), synonyms.getValue());
+        t.getTableModel().addRow(trim(synonyms.getKey(), 20), trim(synonyms.getValue(), 20));
       }
       return t;
+    }
+
+    public static String trim(String s, int numChars) {
+      if(s.length() > numChars) {
+        return s.substring(0, numChars) + "...";
+      }
+      return s;
     }
 
     public Map<String, Table<String>> getValueTable() {
